@@ -85,7 +85,7 @@ histo_plot(imageP inImage, imageP outImage, int flg)
 	}
 	
 	if (flg == 0){
-	int scale = inImage->width * inImage->height / MXGRAY;
+	int scale = 128 / (inImage->width * inImage->height / MXGRAY);
 	for (i = 0; i <256; i++){
 		H[i] = H[i]*scale;
 		if(H[i] > 255) H[i] = 0;
