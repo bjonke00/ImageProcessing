@@ -57,12 +57,15 @@ main(int argc, char** argv)
 void
 histo_plot(imageP inImage, imageP outImage, int flg)
 {
-	int i, total;
+	int i, total, Havg;
 	int x, y, v;
 	uchar *in, *out, H[MXGRAY];
 	
 	// Init number of pixels in image
 	total = inImage->width * inImage->height;
+	
+	// Image average 
+	Havg = total/MXGRAY;
 	
 	// Init out image dimensions
 	outImage->width  = 256;
@@ -80,16 +83,15 @@ histo_plot(imageP inImage, imageP outImage, int flg)
 	for(i = 0; i < MXGRAY; i++) H[i] = 0;
 	
 	// Fill array with values in image
-	for(i = 0; i < total; i++) {
-		H[in[i]]++;
-	}
+	for(i = 0; i < total; i++) H[in[i]]++;
 	
+	// Cut off at y = 255
 	if (flg == 0){
-	int scale = inImage->width * inImage->height / MXGRAY;
-	for (i = 0; i <256; i++){
-		H[i] = H[i]*scale;
-		if(H[i] > 255) H[i] = 0;
-	}}
+		for (i = 0; i <MXGRAY; i++){
+			if((int)H[i] > Havg) H[i] = static_cast<char>(128);
+			H[i] *= 2;
+		}
+	}
 
 	// Plot histogram in out file
 	for(x = 0; x < (256); x++) {
