@@ -64,7 +64,7 @@ void
 histo_stretch(imageP inImage, int t1, int t2, imageP outImage)
 {
 	int i, j, total;
-	int x = 0, y = 0, v;
+	int x, y, v;
 	uchar *in, *out, H[MXGRAY];
 	
 	// Init number of pixels in image
@@ -89,13 +89,50 @@ histo_stretch(imageP inImage, int t1, int t2, imageP outImage)
 	for(i = 0; i < total; i++) H[in[i]]++;
 	
 	// Search for first instance on non-zero value
-	for(i = 0; i < MXGRAY; i++){
-		if((int)H[i] != 0){
-			for(j = x; j < H[i]; j++){
-				H[j]++;
+	x = 0;
+	if(t1 < 0 && t2 < 0){
+		for(i = 0; i < MXGRAY; i++){
+			if((int)H[i] != 0){
+				for(j = x; j <= H[i]; j++){
+					H[j]++;
+				}
+				H[i]--;
+				x++;
 			}
-			H[i]--;
-			x++;
+		}
+	}
+	
+	x = 0;
+	//Start stretching from t1 value
+	if(t1 > 0 && t1 < 255){
+		for(i = t1+1; i < MXGRAY; i++){
+			H[i] = 0;
+		}
+		for(i = 0; i < MXGRAY; i++){
+			if((int)H[i] != 0){
+				for(j = x; j <= H[i]; j++){
+					H[j]++;
+				}
+				H[i]--;
+				x++;
+			}
+		}
+	}
+	
+	x = 0;
+	//Start stretching from t2 value
+	if(t2 > 0 && t2 < 255){
+		for(i = 0; i < t2; i++){
+			H[i] = 0;
+		}
+		for(i = 0; i < MXGRAY; i++){
+			if((int)H[i] != 0){
+				for(j = x; j <= H[i]; j++){
+					H[j]++;
+				}
+				H[i]--;
+				x++;
+			}
 		}
 	}
 	
