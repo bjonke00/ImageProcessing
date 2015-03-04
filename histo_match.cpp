@@ -62,12 +62,48 @@ histo_match(imageP inImage, int n, imageP outImage)
 	int left[MXGRAY], width[MXGRAY];
 	uchar *in, *out;
 	long total, Hsum, Havg, H[MXGRAY];
+	double bin[MXGRAY];
 
 	// Total number of pixels in image
 	total = (long)inImage->height * inImage->width;
 	
 	// Interval value for equal histogram
 	Havg = total / MXGRAY;
+
+//
+	if(n >= 0){
+		// Get Value of each bin.
+		for (int i = 0 ; i < MXGRAY; i++){
+		    double base = (double) (i/(double) MXGRAY);
+		    bin[i] = pow(base,n);
+		}
+		// Find the total_sum of histogram entries.
+		double total_sum = 0;
+		for (int i = 0; i < MXGRAY; i++){
+			total_sum += bin[i];
+		}
+		//divide each bin by total_sum.
+		for (int i = 0; i < MXGRAY; i++){
+			bin[i] = round(total * (bin[i]/total_sum));
+		}
+	}
+	else{
+		for (int i = 0 ; i < MXGRAY; i++){
+		    double base = (double) (i/(double) MXGRAY);
+		    bin[i] =  pow(base,-n);
+		}
+		// Find the total_sum of histogram entries.
+		double total_sum = 0;
+		for (int i = 0; i < MXGRAY; i++){
+			total_sum += bin[i];
+		}
+		//divide each bin by total_sum.
+		for (int i = 0; i < MXGRAY; i++){
+			bin[i] = round(total * ((1 - bin[i])/total_sum));
+		}
+
+	}	
+
 
 	// Init out image dimensions and buffer
 	outImage->width  = inImage->width;
@@ -87,6 +123,9 @@ histo_match(imageP inImage, int n, imageP outImage)
 	// Each input gray value maps to an interval of valid
 	// output values. The endpoints of the intervals are
 	// left[] and left[]+width[].
+
+
+if (n == 0){
 	for(i=0; i<MXGRAY; i++) {
 		left[i] = R;		// left end of interval
 		Hsum += H[i];	// cum. interval value
@@ -100,7 +139,21 @@ histo_match(imageP inImage, int n, imageP outImage)
 		// width of interval
 		width[i] = R - left[i] + 1;
 	}
+}else{
+	for(i=0; i<MXGRAY; i++) {
+		left[i] = R;		// left end of interval
+		Hsum += H[i];	// cum. interval value
 
+		// make interval wider, if necessary
+		while(Hsum>bin[R] && R<MXGRAY-1){
+			Hsum -= bin[R];	// adjust Hsum
+			R++;		// update right end
+		}
+
+		// width of interval
+		width[i] = R - left[i] + 1;
+	}
+}
 	// visit all input pixels and remap intensities
 	for(i=0; i<total; i++) {
 		if(width[in[i]] == 1) out[i] = left[in[i]];
