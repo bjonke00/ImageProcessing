@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void unordered_dither(imageP, int, int, imageP);
+void unordered_dither(imageP, int, double, imageP);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // main:
@@ -35,7 +35,7 @@ main(int argc, char** argv)
 	n = atoi(argv[2]);
 
 	// Read gamma number
-	gamma = atoi(argv[3]);
+	gamma = atof(argv[3]);
 	
 	// Quantization image and save result in file
 	unordered_dither(inImage, n, gamma, outImage);
@@ -56,20 +56,18 @@ main(int argc, char** argv)
 // 
 //
 void
-unordered_dither(imageP inImage, int n, int gamma, imageP outImage){
+unordered_dither(imageP inImage, int n, double gamma, imageP outImage){
 
-	int		i, j, total, R;
+	int		i, j, total, result;
 	int 	jitter, bias, scale;
-	double	base, sum, Hsum, bin[MXGRAY];
-	int 	left[MXGRAY], width[MXGRAY];
-	uchar	*in, *out, lut[MXGRAY], H[MXGRAY];
+	uchar	*in, *out, lut[MXGRAY];
 
 	scale = MXGRAY / n;
 	bias = scale/2;
 
 	// Total number of pixels in image
 	total = inImage->width * inImage->height;
-
+	
 	// Init out image dimensions and buffer
 	outImage->width  = inImage->width;
 	outImage->height = inImage->height;
@@ -83,11 +81,21 @@ unordered_dither(imageP inImage, int n, int gamma, imageP outImage){
 	in  = inImage->image;	// input  image buffer
 	out = outImage->image;	// output image buffer
 	
-	/*
-	for(i=0; i<total; i++){
-		in[i] = pow(in[i],1/gamma);
+	
+	// Init gamma correction lut
+	for(i=0; i<MXGRAY; i++){
+		result = (double)i/(double)MaxGray;
+		result = pow(result, 1.0/gamma);
+		if(result < 0.0)		result = 0.0;
+		else if(result > 1.0) 	result = 1.0;
+		in[i] = result*MXGRAY;
 	}
-	*/
+
+	for(i=0; i<total; i++){
+		//in[i] = gamma_lut[in[i]];
+	}
+	
+	// Dithering of input image
 	for(i=0; i<total; i++){
 		jitter = ((rand()&0x7fff)*bias)>>15;
 		if(i%2 == 0)	in[i] += jitter;
@@ -103,4 +111,3 @@ unordered_dither(imageP inImage, int n, int gamma, imageP outImage){
 	// Visit all input pixels and apply lut to threshold
 	for(i=0; i<total; i++) out[i] = lut[in[i]];	
 }
-
