@@ -74,7 +74,10 @@ qntz(imageP inImage, int n, imageP outImage)
 	}
 
 	// Init lookup table
-	for(i=0; i<MXGRAY; i++) lut[i] = scale * (int) (i/scale);
+	for(j=0; j<n; j++){
+		for(i=0; i<scale; i++) 
+			lut[j*scale+i] = scale*j + scale/2;
+	}
 
 	// Visit all input pixels and apply lut to threshold
 	in  = inImage->image;	// input  image buffer
