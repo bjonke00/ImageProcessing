@@ -57,7 +57,7 @@ main(int argc, char** argv)
 void
 qntz(imageP inImage, int n, imageP outImage)
 {
-	int	 	i, total;
+	int	 	i, j, total;
 	int 	scale = MXGRAY / n;
 	uchar	*in, *out, lut[256];
 

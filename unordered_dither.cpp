@@ -84,11 +84,8 @@ unordered_dither(imageP inImage, int n, double gamma, imageP outImage){
 	
 	// Init gamma correction lut
 	for(i=0; i<MXGRAY; i++){
-		result = (double)i/(double)MaxGray;
-		result = pow(result, 1.0/gamma);
-		if(result < 0.0)		result = 0.0;
-		else if(result > 1.0) 	result = 1.0;
-		in[i] = result*MXGRAY;
+		result = pow((double)i/(double)MaxGray, 1.0/gamma)*MXGRAY;
+		in[i] = (uchar)result;
 	}
 
 	for(i=0; i<total; i++){
